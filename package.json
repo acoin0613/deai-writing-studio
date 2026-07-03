@@ -1,0 +1,13 @@
+{
+  "name": "deai-writing-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A web-based DeAI writing studio with per-user model API settings.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

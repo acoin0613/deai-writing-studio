@@ -1,0 +1,6 @@
+interface:
+  display_name: "DeAI Skill Kernel"
+  short_description: "保真去 AI 味、中文改写与作者声纹校准。"
+  default_prompt: "Use $deai-skill-kernel to humanize this Chinese draft while preserving facts, terms, and author voice."
+policy:
+  allow_implicit_invocation: true

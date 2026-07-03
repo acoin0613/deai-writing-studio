@@ -1,0 +1,2180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeAI Writing Studio</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08090d;
+      --bg-elevated: rgba(16, 18, 26, 0.84);
+      --bg-soft: rgba(255, 255, 255, 0.04);
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.18);
+      --text: #f4f7fb;
+      --muted: #8f98aa;
+      --faint: #626b7d;
+      --blue: #7ab7ff;
+      --mint: #7ef0c1;
+      --violet: #b5a7ff;
+      --amber: #ffd278;
+      --red: #ff7e93;
+      --green: #7af0a5;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+      --radius: 8px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(122, 183, 255, 0.12), transparent 24%),
+        linear-gradient(215deg, rgba(126, 240, 193, 0.08), transparent 32%),
+        linear-gradient(180deg, #0c0d13 0%, var(--bg) 56%, #050609 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.038) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 86%);
+    }
+
+    body::after {
+      position: fixed;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      opacity: 0.16;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+
+    button,
+    select,
+    textarea,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: 100vh;
+      max-height: 100vh;
+      padding: 18px;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      min-height: 60px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.028));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(122, 183, 255, 0.46);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(122, 183, 255, 0.18), rgba(126, 240, 193, 0.08)),
+        rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 30px rgba(122, 183, 255, 0.18);
+      color: var(--blue);
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 650;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 13px;
+      transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(122, 183, 255, 0.48);
+      background: rgba(255, 255, 255, 0.075);
+    }
+
+    .btn.primary {
+      border-color: rgba(122, 183, 255, 0.52);
+      background: linear-gradient(180deg, rgba(122, 183, 255, 0.22), rgba(122, 183, 255, 0.08));
+      box-shadow: 0 0 32px rgba(122, 183, 255, 0.18);
+    }
+
+    .btn.good {
+      border-color: rgba(126, 240, 193, 0.48);
+      color: #dffcef;
+      background: linear-gradient(180deg, rgba(126, 240, 193, 0.18), rgba(126, 240, 193, 0.06));
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(3, 4, 8, 0.68);
+      backdrop-filter: blur(16px);
+    }
+
+    .modal.open {
+      display: grid;
+    }
+
+    .settings-card {
+      width: min(560px, 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032)),
+        #10121a;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .settings-body {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .settings-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .settings-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.92fr) minmax(250px, 0.7fr) minmax(330px, 1fr);
+      gap: 14px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)),
+        var(--bg-elevated);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 48px;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      margin: 0;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--blue);
+      box-shadow: 0 0 18px rgba(122, 183, 255, 0.7);
+      flex: 0 0 auto;
+    }
+
+    .dot.mint {
+      background: var(--mint);
+      box-shadow: 0 0 18px rgba(126, 240, 193, 0.65);
+    }
+
+    .dot.violet {
+      background: var(--violet);
+      box-shadow: 0 0 18px rgba(181, 167, 255, 0.65);
+    }
+
+    .count {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .panel-body {
+      min-height: 0;
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .progress-track {
+      grid-column: 1 / -1;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--mint));
+      box-shadow: 0 0 18px rgba(122, 183, 255, 0.45);
+      transition: width 220ms ease;
+    }
+
+    .progress-bar.running {
+      animation: progressPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    .editor-wrap {
+      display: grid;
+      grid-template-rows: minmax(180px, 0.86fr) auto minmax(150px, 0.54fr);
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 0;
+      resize: none;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+      background: rgba(4, 5, 8, 0.58);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.72;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    textarea:focus {
+      border-color: rgba(122, 183, 255, 0.44);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 0 0 3px rgba(122, 183, 255, 0.08);
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--bg-soft);
+    }
+
+    .stat-label {
+      color: var(--faint);
+      font-size: 11px;
+    }
+
+    .stat-value {
+      margin-top: 4px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 16px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label,
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      min-height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+      background: rgba(4, 5, 8, 0.56);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(3, 4, 8, 0.42);
+    }
+
+    .segmented button {
+      min-height: 30px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .segmented button.active {
+      border-color: rgba(122, 183, 255, 0.42);
+      background: rgba(122, 183, 255, 0.11);
+      color: var(--text);
+      box-shadow: 0 0 22px rgba(122, 183, 255, 0.12);
+    }
+
+    .checks {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--text);
+      font-size: 12px;
+      user-select: none;
+    }
+
+    .check input {
+      accent-color: var(--blue);
+    }
+
+    .range-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .pill-list {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.035);
+      font-size: 12px;
+    }
+
+    .pill.warn {
+      border-color: rgba(255, 210, 120, 0.36);
+      color: #ffe1a3;
+    }
+
+    .signals {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .signal {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 9px;
+      align-items: center;
+      min-height: 40px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .signal-index {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 6px;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11px;
+      flex: 0 0 auto;
+    }
+
+    .signal-name {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .signal-hit {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .severity-high {
+      border-color: rgba(255, 126, 147, 0.38);
+    }
+
+    .severity-mid {
+      border-color: rgba(255, 210, 120, 0.34);
+    }
+
+    .severity-low {
+      border-color: rgba(122, 183, 255, 0.26);
+    }
+
+    .output-layout {
+      display: grid;
+      grid-template-rows: auto minmax(230px, 1fr) auto auto minmax(230px, 0.82fr);
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .tab {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-color: rgba(126, 240, 193, 0.44);
+      background: rgba(126, 240, 193, 0.09);
+    }
+
+    .output-box,
+    .compare-box,
+    .sentence-issues {
+      min-height: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(4, 5, 8, 0.58);
+      overflow: auto;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.76;
+      white-space: pre-wrap;
+    }
+
+    .sentence-issues {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      white-space: normal;
+    }
+
+    .sentence-box {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .sentence-box-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 34px;
+    }
+
+    .inline-actions {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .sentence-box-head .btn {
+      min-height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .sentence-issue {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 9px;
+      padding: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .sentence-issue.high {
+      border-color: rgba(255, 126, 147, 0.34);
+    }
+
+    .sentence-issue.mid {
+      border-color: rgba(255, 210, 120, 0.32);
+    }
+
+    .sentence-issue.low {
+      border-color: rgba(122, 183, 255, 0.24);
+    }
+
+    .sentence-no {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 6px;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .sentence-main {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .sentence-text {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .sentence-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .sentence-action {
+      color: var(--faint);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .compare-box {
+      display: grid;
+      color: #dbe2ef;
+    }
+
+    .compare-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      min-height: 28px;
+    }
+
+    .compare-title {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .compare-pane {
+      min-height: 0;
+      overflow: auto;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .compare-label {
+      margin-bottom: 7px;
+      color: var(--faint);
+      font-size: 11px;
+    }
+
+    .compare-text {
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .diff-added,
+    .diff-changed {
+      padding: 1px 3px;
+      border-radius: 4px;
+    }
+
+    .diff-added {
+      background: rgba(126, 240, 193, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(126, 240, 193, 0.3);
+    }
+
+    .diff-changed {
+      background: rgba(255, 210, 120, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(255, 210, 120, 0.28);
+    }
+
+    .diff-empty {
+      color: var(--faint);
+    }
+
+    mark {
+      padding: 1px 3px;
+      border-radius: 4px;
+      color: #fff;
+      background: rgba(255, 126, 147, 0.28);
+      box-shadow: inset 0 0 0 1px rgba(255, 126, 147, 0.34);
+    }
+
+    .fidelity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .fidelity {
+      min-height: 48px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .fidelity.ok {
+      border-color: rgba(126, 240, 193, 0.28);
+    }
+
+    .fidelity.warn {
+      border-color: rgba(255, 210, 120, 0.34);
+    }
+
+    .fidelity strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .fidelity span {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .footer-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status {
+      color: var(--faint);
+      font-size: 12px;
+    }
+
+    .local-status {
+      color: var(--faint);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .empty {
+      color: var(--faint);
+    }
+
+    @media (max-width: 1180px) {
+      .workbench {
+        grid-template-columns: 1fr 0.86fr;
+        grid-template-areas:
+          "input controls"
+          "output output";
+        overflow: auto;
+      }
+
+      .panel.input {
+        grid-area: input;
+      }
+
+      .panel.controls-panel {
+        grid-area: controls;
+      }
+
+      .panel.output {
+        grid-area: output;
+        min-height: 560px;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        height: auto;
+        max-height: none;
+        min-height: 100vh;
+        padding: 10px;
+        overflow: auto;
+      }
+
+      .topbar,
+      .workbench {
+        grid-template-columns: 1fr;
+      }
+
+      .workbench {
+        grid-template-areas:
+          "input"
+          "controls"
+          "output";
+        overflow: visible;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
+
+      .mini-row,
+      .checks,
+      .fidelity-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel.output {
+        min-height: 620px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">DA</div>
+        <div>
+          <h1>DeAI Writing Studio</h1>
+          <div class="sub">场景化去 AI 味 / 保真改写 / 作者声纹校准</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="sampleBtn" type="button">载入样例</button>
+        <button class="btn" id="clearBtn" type="button">清空</button>
+        <button class="btn" id="settingsBtn" type="button">模型设置</button>
+        <button class="btn" id="apiTestBtn" type="button">测试 API</button>
+        <span class="local-status" id="apiStatus">未测试</span>
+        <button class="btn primary" id="runBtn" type="button">运行去味</button>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </header>
+
+    <section class="workbench">
+      <section class="panel input">
+        <div class="panel-head">
+          <h2 class="panel-title"><span class="dot"></span>原文</h2>
+          <span class="count" id="inputCount">0 字</span>
+        </div>
+        <div class="panel-body">
+          <div class="editor-wrap">
+            <textarea id="sourceText" spellcheck="false" placeholder="粘贴需要处理的中文文本..."></textarea>
+            <div class="mini-row">
+              <div class="stat">
+                <div class="stat-label">AI 痕迹</div>
+                <div class="stat-value" id="signalCount">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">保真对象</div>
+                <div class="stat-value" id="protectedCount">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">风险等级</div>
+                <div class="stat-value" id="riskLevel">-</div>
+              </div>
+            </div>
+            <div class="sentence-box">
+              <div class="sentence-box-head">
+                <span class="panel-title"><span class="dot violet"></span>语句问题</span>
+                <div class="inline-actions">
+                  <button class="btn" id="sentenceCheckTop" type="button">分析语句</button>
+                  <span class="local-status" id="sentenceStatus">等待处理</span>
+                </div>
+              </div>
+              <div class="sentence-issues" id="sentenceIssuesBox"><span class="empty">点击“分析语句”后，单独返回语句问题。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel controls-panel">
+        <div class="panel-head">
+          <h2 class="panel-title"><span class="dot mint"></span>控制台</h2>
+          <span class="count" id="modeLabel">标准</span>
+        </div>
+        <div class="panel-body">
+          <div class="controls">
+            <div class="field">
+              <label for="sceneSelect">文本场景</label>
+              <select id="sceneSelect">
+                <option value="public-writing">公众写作</option>
+                <option value="academic">学术/论文</option>
+                <option value="docs">产品文档</option>
+                <option value="status">工作汇报</option>
+                <option value="chat">聊天回复</option>
+                <option value="translation">翻译稿</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="label">改写强度</div>
+              <div class="segmented" id="strengthTabs">
+                <button class="active" data-strength="light" type="button">轻度</button>
+                <button data-strength="standard" type="button">标准</button>
+                <button data-strength="bold" type="button">大改</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="toneSelect">语气</label>
+              <select id="toneSelect">
+                <option value="calm">克制自然</option>
+                <option value="direct">直接说人话</option>
+                <option value="professional">专业清楚</option>
+                <option value="sharp">更有判断</option>
+                <option value="warm">温和口语</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="range-line">
+                <label for="fidelityRange">保真级别</label>
+                <span class="count" id="fidelityValue">严格</span>
+              </div>
+              <input id="fidelityRange" type="range" min="1" max="3" step="1" value="1">
+            </div>
+
+            <div class="field">
+              <div class="label">优先处理</div>
+              <div class="checks">
+                <label class="check"><input type="checkbox" value="template" checked> 模板腔</label>
+                <label class="check"><input type="checkbox" value="authority" checked> 假权威</label>
+                <label class="check"><input type="checkbox" value="jargon" checked> 黑话</label>
+                <label class="check"><input type="checkbox" value="service" checked> 客服腔</label>
+                <label class="check"><input type="checkbox" value="inflation" checked> 价值拔高</label>
+                <label class="check"><input type="checkbox" value="structure" checked> 三段式</label>
+                <label class="check"><input type="checkbox" value="balance" checked> 端水腔</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="styleSample">作者样本</label>
+              <input id="styleSample" type="text" placeholder="可填常用语气，如：短句、少排比、不要鸡汤">
+            </div>
+
+            <div class="field">
+              <div class="label">诊断</div>
+              <div class="pill-list" id="summaryPills">
+                <span class="pill">等待文本</span>
+              </div>
+              <div class="signals" id="signals"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel output">
+        <div class="panel-head">
+          <h2 class="panel-title"><span class="dot violet"></span>结果</h2>
+          <button class="btn good" id="copyBtn" type="button">复制当前版本</button>
+        </div>
+        <div class="panel-body">
+          <div class="output-layout">
+            <div class="tabs" id="outputTabs">
+              <button class="tab active" data-tab="safe" type="button">保守版</button>
+              <button class="tab" data-tab="natural" type="button">自然版</button>
+              <button class="tab" data-tab="voice" type="button">风格版</button>
+            </div>
+            <div class="output-box" id="outputBox"><span class="empty">运行后显示改写结果。</span></div>
+            <div class="footer-line">
+              <span class="status" id="rewriteStatus">等待运行</span>
+            </div>
+            <div class="compare-head">
+              <span class="dot violet"></span>
+              <div class="compare-title">修改前后对比</div>
+            </div>
+            <div class="compare-box" id="compareBox"><span class="empty">完成后显示修改前后对照。</span></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <section class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="panel-head">
+        <h2 class="panel-title" id="settingsTitle"><span class="dot mint"></span>模型设置</h2>
+        <button class="btn" id="settingsCloseBtn" type="button">关闭</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-grid">
+          <div class="field wide">
+            <label for="providerInput">模型供应商</label>
+            <select id="providerInput">
+              <option value="openai">OpenAI / GPT</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="anthropic">Claude 官方</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="custom">自定义 OpenAI 兼容接口</option>
+            </select>
+          </div>
+          <div class="field wide">
+            <label for="apiKeyInput">API Key</label>
+            <input id="apiKeyInput" type="password" autocomplete="off" placeholder="填入你自己的 API Key">
+          </div>
+          <div class="field wide">
+            <label for="baseUrlInput">接口地址</label>
+            <input id="baseUrlInput" type="text" placeholder="https://api.openai.com/v1">
+          </div>
+          <div class="field">
+            <label for="modelInput">模型名</label>
+            <input id="modelInput" type="text" placeholder="gpt-4.1-mini">
+          </div>
+          <div class="field">
+            <label for="apiModeInput">接口模式</label>
+            <select id="apiModeInput">
+              <option value="chat">chat</option>
+              <option value="responses">responses</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="timeoutInput">超时毫秒</label>
+            <input id="timeoutInput" type="text" placeholder="75000">
+          </div>
+        </div>
+        <span class="local-status">DeepSeek、OpenRouter、硅基流动等一般走 OpenAI 兼容模式；Claude 官方会走 Anthropic Messages API。配置只保存在当前浏览器。</span>
+      </div>
+      <div class="settings-foot">
+        <span class="local-status" id="settingsStatus">未保存</span>
+        <div class="top-actions">
+          <button class="btn" id="settingsClearBtn" type="button">清除</button>
+          <button class="btn good" id="settingsSaveBtn" type="button">保存设置</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const sourceText = document.querySelector("#sourceText");
+    const inputCount = document.querySelector("#inputCount");
+    const signalCount = document.querySelector("#signalCount");
+    const protectedCount = document.querySelector("#protectedCount");
+    const riskLevel = document.querySelector("#riskLevel");
+    const modeLabel = document.querySelector("#modeLabel");
+    const signalsEl = document.querySelector("#signals");
+    const summaryPills = document.querySelector("#summaryPills");
+    const outputBox = document.querySelector("#outputBox");
+    const compareBox = document.querySelector("#compareBox");
+    const sentenceIssuesBox = document.querySelector("#sentenceIssuesBox");
+    const rewriteStatus = document.querySelector("#rewriteStatus");
+    const apiStatus = document.querySelector("#apiStatus");
+    const sentenceStatus = document.querySelector("#sentenceStatus");
+    const progressBar = document.querySelector("#progressBar");
+    const settingsModal = document.querySelector("#settingsModal");
+    const settingsStatus = document.querySelector("#settingsStatus");
+    const providerInput = document.querySelector("#providerInput");
+    const apiKeyInput = document.querySelector("#apiKeyInput");
+    const baseUrlInput = document.querySelector("#baseUrlInput");
+    const modelInput = document.querySelector("#modelInput");
+    const apiModeInput = document.querySelector("#apiModeInput");
+    const timeoutInput = document.querySelector("#timeoutInput");
+    const styleSample = document.querySelector("#styleSample");
+    const sceneSelect = document.querySelector("#sceneSelect");
+    const toneSelect = document.querySelector("#toneSelect");
+    const fidelityRange = document.querySelector("#fidelityRange");
+    const fidelityValue = document.querySelector("#fidelityValue");
+
+    let activeStrength = "light";
+    let activeTab = "safe";
+    let outputs = { safe: "", natural: "", voice: "" };
+    let lastSignals = [];
+    let modelSentenceIssues = null;
+    let modelSentenceIssueKey = "";
+    let runCounter = 0;
+    let progressTimer = null;
+    const configStorageKey = "deai.model.config.v1";
+    const defaultModelConfig = {
+      apiKey: "",
+      providerPreset: "openai",
+      provider: "openai-compatible",
+      baseUrl: "https://api.openai.com/v1",
+      model: "gpt-4.1-mini",
+      apiMode: "chat",
+      timeoutMs: 75000
+    };
+
+    const providerPresets = {
+      openai: { provider: "openai-compatible", baseUrl: "https://api.openai.com/v1", model: "gpt-4.1-mini", apiMode: "chat" },
+      deepseek: { provider: "openai-compatible", baseUrl: "https://api.deepseek.com/v1", model: "deepseek-chat", apiMode: "chat" },
+      anthropic: { provider: "anthropic", baseUrl: "https://api.anthropic.com", model: "claude-3-5-sonnet-latest", apiMode: "messages" },
+      openrouter: { provider: "openai-compatible", baseUrl: "https://openrouter.ai/api/v1", model: "anthropic/claude-3.5-sonnet", apiMode: "chat" },
+      custom: { provider: "openai-compatible", baseUrl: "", model: "", apiMode: "chat" }
+    };
+    let browserSkillContextPromise = null;
+
+    const sample = `值得注意的是，AI 写作已经成为内容生产中的重要抓手。研究表明，越来越多的人开始通过 AI 工具提升写作效率，这不仅仅是一次工具升级，更是一次表达方式的深刻变革。
+
+从本质上看，去 AI 味并不是简单地替换几个词，而是要深入洞察文本背后的表达逻辑。靠的不是 AI 看，靠的是活人看。我们需要通过系统化的方法论，持续优化内容质量，最终实现更自然、更真实、更有温度的表达。
+
+综上所述，在未来的发展过程中，如何构建一套高效、全面、可持续的去 AI 味体系，将成为创作者必须面对的重要课题。当然，这可能也取决于具体情况。`;
+
+    const signalPatterns = [
+      { id: "opening", name: "空泛开头/结尾", family: "template", severity: "high", re: /(值得注意的是|不可否认的是|毋庸置疑|综上所述|总而言之|从本质上看|归根结底|整体来看|总体而言)/g },
+      { id: "binary", name: "二元对照壳", family: "inflation", severity: "high", re: /(不仅仅是[^。！？\n]{0,18}更是|真正的[^。！？\n]{0,18}不是[^。！？\n]{0,18}而是|不是[^。！？\n]{0,18}而是)/g },
+      { id: "rigid-contrast", name: "生硬对照句", family: "balance", severity: "high", re: /(靠的不是[^。！？\n]{0,20}靠的是[^。！？\n]{0,28}|不是\s*AI\s*看[，,]\s*是活人看|不是[^，。！？\n]{0,16}[，,]?\s*而是[^。！？\n]{0,26})/g },
+      { id: "hedging", name: "退路过多", family: "balance", severity: "mid", re: /(可能|大概率|当然取决于具体情况|取决于具体情况|具体情况具体分析|这取决于|不排除|某种程度上|相对来说)/g },
+      { id: "both-sides", name: "两边都说", family: "balance", severity: "mid", re: /(一方面[^。！？\n]{0,36}另一方面|既要[^。！？\n]{0,24}也要|既不能[^。！？\n]{0,24}也不能|需要辩证地看|不能一概而论)/g },
+      { id: "authority", name: "无来源权威", family: "authority", severity: "high", re: /(研究表明|数据显示|专家认为|业内人士指出|报告指出|相关研究显示)/g },
+      { id: "jargon", name: "业务黑话", family: "jargon", severity: "mid", re: /(赋能|抓手|闭环|沉淀|方法论|链路|生态|赛道|底层逻辑|路径依赖|降本增效)/g },
+      { id: "teacher", name: "分析老师腔", family: "template", severity: "mid", re: /(深入洞察|深入探讨|进一步分析|系统化|全面梳理|多维度|结构化|高效、全面、可持续)/g },
+      { id: "service", name: "客服式回应", family: "service", severity: "high", re: /(希望这能帮助你|你问到了问题的核心|接下来我将|下面我们|如果你还想|作为AI)/g },
+      { id: "inflated", name: "形容词堆叠", family: "inflation", severity: "low", re: /(重要|关键|显著|有效|全面|持续|积极|深刻|真实|有温度)/g },
+      { id: "three", name: "三连结构", family: "structure", severity: "low", re: /([\u4e00-\u9fa5]{1,8}、[\u4e00-\u9fa5]{1,8}、[\u4e00-\u9fa5]{1,10})/g }
+    ];
+
+    const replacements = [
+      [/AI 写作已经成为内容生产中的重要抓手/g, "AI 辅助写作已经进入很多人的写作流程"],
+      [/研究表明，越来越多的人/g, "现在，越来越多的人"],
+      [/这不仅仅是一次工具升级，更是一次表达方式的深刻变革/g, "它不只是工具升级，也在改变人们组织语言的方式"],
+      [/去 AI 味并不是简单地替换几个词，而是要深入洞察文本背后的表达逻辑。/g, "去 AI 味不是替换几个词，重点是看清文本背后的表达逻辑。"],
+      [/在未来的发展过程中，如何构建一套高效、全面、可持续的去 AI 味体系，将成为创作者必须面对的重要课题。/g, "之后，创作者真正要处理的是：如何建立一套能反复使用、又不损失事实的去 AI 味流程。"],
+      [/靠的不是 AI 看，靠的是活人看。/g, "最后还是人来读。"],
+      [/不是AI看，是活人看/g, "最后是人读"],
+      [/当然，这可能也取决于具体情况。/g, ""],
+      [/当然取决于具体情况/g, "要看具体场景"],
+      [/值得注意的是，?/g, ""],
+      [/不可否认的是，?/g, ""],
+      [/毋庸置疑，?/g, ""],
+      [/从本质上看，?/g, ""],
+      [/归根结底，?/g, ""],
+      [/整体来看，?/g, ""],
+      [/总体而言，?/g, ""],
+      [/综上所述，?/g, ""],
+      [/总而言之，?/g, ""],
+      [/重要抓手/g, "工具"],
+      [/通过系统化的方法论/g, "用更具体的方法"],
+      [/持续优化内容质量/g, "把内容改清楚"],
+      [/最终实现/g, "让它变成"],
+      [/深入洞察/g, "看清"],
+      [/深入探讨/g, "说明"],
+      [/表达方式的深刻变革/g, "表达方式的变化"],
+      [/高效、全面、可持续的/g, "能反复使用的"],
+      [/更自然、更真实、更有温度的表达/g, "更自然的表达"],
+      [/未来的发展过程中/g, "之后"]
+    ];
+
+    function paragraphStats(text) {
+      const paragraphs = text.split(/\n{2,}/).map((item) => item.trim()).filter((item) => item.length > 16);
+      const lengths = paragraphs.map((item) => item.length);
+      if (lengths.length < 3) return { paragraphs, lengths, similar: false };
+      const mean = lengths.reduce((sum, item) => sum + item, 0) / lengths.length;
+      const variance = lengths.reduce((sum, item) => sum + Math.pow(item - mean, 2), 0) / lengths.length;
+      const cv = Math.sqrt(variance) / mean;
+      return { paragraphs, lengths, similar: cv < 0.18 };
+    }
+
+    function sentenceRhythmStats(text) {
+      const lengths = splitSentences(text).map((sentence) => sentence.length).filter((length) => length > 3);
+      if (lengths.length < 5) return { lengths, flat: false };
+      const max = Math.max(...lengths);
+      const min = Math.min(...lengths);
+      const mean = lengths.reduce((sum, item) => sum + item, 0) / lengths.length;
+      const variance = lengths.reduce((sum, item) => sum + Math.pow(item - mean, 2), 0) / lengths.length;
+      return { lengths, flat: max - min < 24 && Math.sqrt(variance) < 12 };
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function getSelectedFamilies() {
+      return Array.from(document.querySelectorAll(".check input:checked")).map((item) => item.value);
+    }
+
+    function analyze(text) {
+      const families = getSelectedFamilies();
+      const hits = [];
+      signalPatterns.forEach((pattern) => {
+        if (!families.includes(pattern.family)) return;
+        const matches = Array.from(text.matchAll(pattern.re));
+        matches.forEach((match) => {
+          hits.push({
+            id: pattern.id,
+            name: pattern.name,
+            family: pattern.family,
+            severity: pattern.severity,
+            value: match[0],
+            index: match.index
+          });
+        });
+      });
+      if (families.includes("structure")) {
+        const para = paragraphStats(text);
+        if (para.similar) {
+          hits.push({
+            id: "paragraph-isomorphism",
+            name: "段落过度工整",
+            family: "structure",
+            severity: "mid",
+            value: "",
+            index: 0
+          });
+        }
+        const rhythm = sentenceRhythmStats(text);
+        if (rhythm.flat) {
+          hits.push({
+            id: "flat-rhythm",
+            name: "句长缺少波动",
+            family: "structure",
+            severity: "low",
+            value: "",
+            index: 0
+          });
+        }
+      }
+      const weight = { high: 0, mid: 1, low: 2 };
+      return hits.sort((a, b) => (weight[a.severity] - weight[b.severity]) || (a.index - b.index));
+    }
+
+    function extractProtected(text) {
+      const number = Array.from(text.matchAll(/\b\d+(?:\.\d+)?%?|\d{4}年|\d{1,2}月\d{1,2}日|v?\d+\.\d+(?:\.\d+)?/g)).map((m) => m[0]);
+      const names = Array.from(text.matchAll(/[A-Za-z][A-Za-z0-9_-]{2,}|《[^》]{2,30}》|「[^」]{2,30}」|“[^”]{2,30}”/g)).map((m) => m[0]);
+      const dates = Array.from(text.matchAll(/\d{4}[-/年]\d{1,2}[-/月]\d{1,2}日?|今天|昨天|明天|本周|上周|下周/g)).map((m) => m[0]);
+      return { number, names, dates };
+    }
+
+    function splitSentences(text) {
+      return text
+        .split(/(?<=[。！？\n])/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    function sentenceSeverityScore(severity) {
+      return { high: 3, mid: 2, low: 1 }[severity] || 0;
+    }
+
+    function inspectSentence(sentence, index) {
+      const issues = [];
+      const pushIssue = (severity, label, action) => {
+        if (!issues.some((item) => item.label === label)) {
+          issues.push({ severity, label, action });
+        }
+      };
+
+      if (sentence.length > 96) {
+        pushIssue("high", "句子过长，信息塞在一起", "拆成 2-3 句：先说事实，再说判断，最后补条件。");
+      } else if (sentence.length > 72) {
+        pushIssue("mid", "句子偏长", "删掉垫话和重复修饰，保留主谓宾。");
+      }
+
+      const commaCount = (sentence.match(/[，,；;]/g) || []).length;
+      if (commaCount >= 5) {
+        pushIssue("mid", "逗号层层转折", "把并列关系改成短句，不要一直用逗号续命。");
+      }
+
+      if (/(靠的不是[^。！？\n]{0,24}靠的是|不是\s*AI\s*看[，,]\s*是活人看|不是[^，。！？\n]{0,18}[，,]?\s*而是)/.test(sentence)) {
+        pushIssue("high", "生硬对照句", "如果 A 不是必要边界，直接说 B；如果要保留 A，把它改成自然让步。");
+      }
+
+      const hedgeCount = (sentence.match(/可能|大概率|当然取决于具体情况|取决于具体情况|具体情况具体分析|不排除|某种程度上|相对来说/g) || []).length;
+      if (hedgeCount >= 2) {
+        pushIssue("high", "退路留得太多", "把不确定性落到具体条件，别连续用模糊缓冲词。");
+      } else if (hedgeCount === 1) {
+        pushIssue("mid", "有退路词", "确认这里是真的不确定，还是只是 AI 式保险话。");
+      }
+
+      if (/(一方面[^。！？\n]{0,40}另一方面|既要[^。！？\n]{0,28}也要|既不能[^。！？\n]{0,28}也不能|需要辩证地看|不能一概而论)/.test(sentence)) {
+        pushIssue("mid", "两边都说，判断不够落地", "补一句你的真实判断，或者删掉其中一边。");
+      }
+
+      if (/(研究表明|数据显示|专家认为|业内人士指出|报告指出|相关研究显示)/.test(sentence)) {
+        pushIssue("high", "无来源权威", "有来源就补来源；没有来源就改成可自洽的观察或删掉权威口吻。");
+      }
+
+      if (/(赋能|抓手|闭环|沉淀|方法论|链路|生态|赛道|底层逻辑|路径依赖|降本增效)/.test(sentence)) {
+        pushIssue("mid", "黑话偏多", "换成具体动作、对象、结果或约束。");
+      }
+
+      const modifierCount = (sentence.match(/重要|关键|显著|有效|全面|持续|积极|深刻|真实|有温度|高效/g) || []).length;
+      if (modifierCount >= 3) {
+        pushIssue("mid", "形容词堆叠", "保留一个最有信息量的词，其余换成事实。");
+      }
+
+      if (/(值得注意的是|从本质上看|综上所述|总而言之|归根结底|整体来看|总体而言)/.test(sentence)) {
+        pushIssue("high", "空泛起手或收束", "删掉开场架子，直接进入事实或判断。");
+      }
+
+      const score = issues.reduce((sum, item) => sum + sentenceSeverityScore(item.severity), 0);
+      return { index, sentence, issues, score };
+    }
+
+    function renderModelSentenceIssues(items) {
+      if (!items.length) {
+        sentenceIssuesBox.innerHTML = `<span class="empty">模型未发现明显逐句问题。</span>`;
+        sentenceStatus.textContent = "已检测";
+        return;
+      }
+
+      sentenceIssuesBox.innerHTML = items.slice(0, 10).map((item, index) => {
+        const severity = item.severity || "mid";
+        const sentence = item.sentence || item.text || "";
+        const labels = Array.isArray(item.issues) ? item.issues.join(" / ") : (item.issue || item.label || "语句问题");
+        const action = item.suggestion || item.action || "压缩垫话，保留具体事实和判断。";
+        return `
+          <div class="sentence-issue ${severity}">
+            <span class="sentence-no">S${item.index || index + 1}</span>
+            <div class="sentence-main">
+              <div class="sentence-text">${escapeHtml(sentence)}</div>
+              <div class="sentence-meta">${escapeHtml(labels)}</div>
+              <div class="sentence-action">${escapeHtml(action)}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      sentenceStatus.textContent = `已检测 · ${items.length} 条`;
+    }
+
+    function removeEmptySentences(text, level) {
+      if (level === "light") return text;
+      const emptyPatterns = [
+        /这将成为[^。！？]{0,40}重要课题/,
+        /将成为[^。！？]{0,30}必须面对/,
+        /最终实现[^。！？]{0,30}/
+      ];
+      return splitSentences(text)
+        .filter((sentence) => !emptyPatterns.some((re) => re.test(sentence)))
+        .join("");
+    }
+
+    function basicRewrite(text, level) {
+      let result = text;
+      replacements.forEach(([from, to]) => {
+        result = result.replace(from, to);
+      });
+      result = result
+        .replace(/这不仅仅是([^，。！？\n]{1,22})，?更是([^。！？\n]{1,36})/g, "这不只是$1，也会改变$2")
+        .replace(/靠的不是([^，。！？\n]{1,24})[，,]?\s*靠的是([^。！？\n]{1,36})/g, "真正起作用的是$2")
+        .replace(/不是\s*AI\s*看[，,]\s*是活人看/g, "最后是人读")
+        .replace(/，将成为创作者必须面对的重要课题/g, "，创作者需要认真处理")
+        .replace(/AI 写作/g, "AI 辅助写作")
+        .replace(/内容生产/g, "写作");
+      result = removeEmptySentences(result, level);
+      result = result.replace(/\n{3,}/g, "\n\n").replace(/[ \t]{2,}/g, " ").trim();
+      return result;
+    }
+
+    function tuneByTone(text, tone) {
+      let result = text;
+      if (tone === "direct") {
+        result = result
+          .replace(/需要认真处理/g, "绕不开")
+          .replace(/使用/g, "用")
+          .replace(/处理/g, "改");
+      }
+      if (tone === "professional") {
+        result = result
+          .replace(/绕不开/g, "需要处理")
+          .replace(/把内容改清楚/g, "提升表达清晰度");
+      }
+      if (tone === "sharp") {
+        result = result
+          .replace(/AI 辅助写作/g, "AI 生成文本")
+          .replace(/需要认真处理/g, "不能再靠套话糊弄");
+      }
+      if (tone === "warm") {
+        result = result
+          .replace(/不能再靠套话糊弄/g, "需要慢慢把话说实")
+          .replace(/改清楚/g, "改得更顺");
+      }
+      return result;
+    }
+
+    function structuralRewrite(text) {
+      const base = basicRewrite(text, "bold");
+      const sentences = splitSentences(base);
+      if (sentences.length < 3) return base;
+      const compact = sentences
+        .map((sentence) => sentence.replace(/^在[^，]{2,16}，/, ""))
+        .filter((sentence) => sentence.length > 8)
+        .join("\n\n");
+      return compact;
+    }
+
+    function applyStyleSample(text, sampleText) {
+      if (!sampleText.trim()) return text;
+      let result = text;
+      if (/短句/.test(sampleText)) {
+        result = result.replace(/，/g, "。\n");
+      }
+      if (/少排比|不要排比/.test(sampleText)) {
+        result = result.replace(/([\u4e00-\u9fa5]{1,6})、([\u4e00-\u9fa5]{1,6})、([\u4e00-\u9fa5]{1,8})/g, "$1和$2");
+      }
+      if (/不要鸡汤|克制/.test(sampleText)) {
+        result = result.replace(/更有温度|深刻|重要/g, "");
+      }
+      return result.replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    function loadModelConfig() {
+      try {
+        return { ...defaultModelConfig, ...JSON.parse(localStorage.getItem(configStorageKey) || "{}") };
+      } catch {
+        return { ...defaultModelConfig };
+      }
+    }
+
+    function saveModelConfig(config) {
+      localStorage.setItem(configStorageKey, JSON.stringify(config));
+      updateApiStatusFromConfig();
+    }
+
+    function getModelConfigFromForm() {
+      const preset = providerPresets[providerInput.value] || providerPresets.custom;
+      return {
+        apiKey: apiKeyInput.value.trim(),
+        providerPreset: providerInput.value,
+        provider: preset.provider,
+        baseUrl: baseUrlInput.value.trim() || defaultModelConfig.baseUrl,
+        model: modelInput.value.trim() || defaultModelConfig.model,
+        apiMode: preset.provider === "anthropic" ? "messages" : (apiModeInput.value || "chat"),
+        timeoutMs: Number(timeoutInput.value || defaultModelConfig.timeoutMs)
+      };
+    }
+
+    function fillSettingsForm() {
+      const config = loadModelConfig();
+      providerInput.value = config.providerPreset || (config.provider === "anthropic" ? "anthropic" : "openai");
+      apiKeyInput.value = config.apiKey || "";
+      baseUrlInput.value = config.baseUrl || defaultModelConfig.baseUrl;
+      modelInput.value = config.model || defaultModelConfig.model;
+      apiModeInput.value = config.apiMode === "messages" ? "chat" : (config.apiMode || "chat");
+      timeoutInput.value = String(config.timeoutMs || defaultModelConfig.timeoutMs);
+      apiModeInput.disabled = providerInput.value === "anthropic";
+    }
+
+    function applyProviderPreset() {
+      const preset = providerPresets[providerInput.value] || providerPresets.custom;
+      if (preset.baseUrl) baseUrlInput.value = preset.baseUrl;
+      if (preset.model) modelInput.value = preset.model;
+      apiModeInput.value = preset.apiMode === "responses" ? "responses" : "chat";
+      apiModeInput.disabled = preset.provider === "anthropic";
+      if (!timeoutInput.value) timeoutInput.value = String(defaultModelConfig.timeoutMs);
+      settingsStatus.textContent = providerInput.options[providerInput.selectedIndex].text;
+    }
+
+    function updateApiStatusFromConfig() {
+      const config = loadModelConfig();
+      apiStatus.textContent = config.apiKey ? `已配置 · ${config.model}` : "未配置";
+    }
+
+    function openSettings() {
+      fillSettingsForm();
+      settingsModal.classList.add("open");
+      settingsModal.setAttribute("aria-hidden", "false");
+      settingsStatus.textContent = "当前浏览器配置";
+      setTimeout(() => apiKeyInput.focus(), 0);
+    }
+
+    function closeSettings() {
+      settingsModal.classList.remove("open");
+      settingsModal.setAttribute("aria-hidden", "true");
+    }
+
+    function requireModelConfig() {
+      const config = loadModelConfig();
+      if (!config.apiKey) {
+        openSettings();
+        throw new Error("请先在模型设置里填写 API Key。");
+      }
+      return config;
+    }
+
+    function hasBackendApi() {
+      return location.protocol !== "file:" && !location.hostname.endsWith("github.io");
+    }
+
+    async function loadBrowserSkillContext() {
+      if (browserSkillContextPromise) return browserSkillContextPromise;
+      const files = [
+        "skills/deai-skill-kernel/SKILL.md",
+        "skills/deai-skill-kernel/references/scene-scope.md",
+        "skills/deai-skill-kernel/references/ai-trace-patterns.md",
+        "skills/deai-skill-kernel/references/fact-gate.md"
+      ];
+      browserSkillContextPromise = Promise.all(files.map(async (file) => {
+        const response = await fetch(file);
+        if (!response.ok) return "";
+        return `\n\n===== ${file} =====\n${await response.text()}`;
+      })).then((parts) => parts.join("\n"));
+      return browserSkillContextPromise;
+    }
+
+    function buildBrowserMessages(task, payload, skillContext) {
+      const sentenceOnly = task === "sentence_issues_only";
+      return [
+        {
+          role: "system",
+          content: [
+            "You are running the bundled deai-skill-kernel in a published web page.",
+            "Follow the skill files below. Preserve facts, terminology, citations, numbers, and academic logic.",
+            "Reduce mechanical transition density; do not delete necessary academic contrast or hedging.",
+            "Return JSON only. No markdown.",
+            sentenceOnly ? "This request only analyzes sentence issues and does not rewrite the full text." : "This request analyzes and rewrites the text.",
+            skillContext
+          ].join("\n")
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            task,
+            requiredSchema: sentenceOnly ? {
+              sentenceIssues: [
+                { index: 1, sentence: "原句", severity: "high|mid|low", issues: ["问题"], suggestion: "修改建议" }
+              ],
+              signals: [
+                { name: "问题类型", severity: "high|mid|low", value: "触发片段", family: "template|authority|jargon|balance|structure|inflation|service|fidelity" }
+              ]
+            } : {
+              signals: [
+                { name: "问题类型", severity: "high|mid|low", value: "触发片段", family: "template|authority|jargon|balance|structure|inflation|service|fidelity" }
+              ],
+              outputs: {
+                safe: "保守版",
+                natural: "自然版",
+                voice: "风格版"
+              }
+            },
+            ...payload
+          }, null, 2)
+        }
+      ];
+    }
+
+    function parseModelJson(text) {
+      try {
+        return JSON.parse(text.trim());
+      } catch {
+        const match = text.match(/```json\s*([\s\S]*?)```|({[\s\S]*})/);
+        if (!match) throw new Error("模型没有返回合法 JSON。");
+        return JSON.parse(match[1] || match[2]);
+      }
+    }
+
+    async function callBrowserModel(config, messages, options = {}) {
+      if (config.provider === "anthropic") {
+        const system = messages.filter((item) => item.role === "system").map((item) => item.content).join("\n\n");
+        const userMessages = messages.filter((item) => item.role !== "system");
+        const response = await fetch(`${config.baseUrl.replace(/\/+$/, "")}/v1/messages`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": config.apiKey,
+            "anthropic-version": "2023-06-01"
+          },
+          body: JSON.stringify({
+            model: config.model,
+            system,
+            messages: userMessages,
+            max_tokens: options.maxTokens || 4096,
+            temperature: options.temperature ?? 0.2
+          })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error?.message || "Claude API 请求失败。");
+        return parseModelJson((payload.content || []).map((part) => part.text || "").join("\n"));
+      }
+
+      const baseUrl = config.baseUrl.replace(/\/+$/, "");
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages,
+          temperature: options.temperature ?? 0.2,
+          response_format: { type: "json_object" }
+        })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error?.message || "模型 API 请求失败。");
+      return parseModelJson(payload.choices?.[0]?.message?.content || "");
+    }
+
+    async function requestBrowserAnalyze(text, localSignals, config) {
+      const skillContext = await loadBrowserSkillContext();
+      const messages = buildBrowserMessages("analyze_and_rewrite", {
+        scene: sceneSelect.value,
+        sceneLabel: sceneSelect.options[sceneSelect.selectedIndex].text,
+        strength: activeStrength,
+        tone: toneSelect.value,
+        fidelityLevel: Number(fidelityRange.value),
+        styleSample: styleSample.value,
+        localSignals: localSignals.slice(0, 20),
+        text
+      }, skillContext);
+      return callBrowserModel(config, messages, { temperature: 0.18 });
+    }
+
+    async function requestBrowserSentenceIssues(text, config) {
+      const skillContext = await loadBrowserSkillContext();
+      const messages = buildBrowserMessages("sentence_issues_only", {
+        scene: sceneSelect.value,
+        sceneLabel: sceneSelect.options[sceneSelect.selectedIndex].text,
+        text
+      }, skillContext);
+      return callBrowserModel(config, messages, { temperature: 0.15 });
+    }
+
+    function makeOutputs(text) {
+      const safe = tuneByTone(basicRewrite(text, "light"), toneSelect.value);
+      const naturalLevel = activeStrength === "bold" ? "bold" : "standard";
+      const natural = tuneByTone(basicRewrite(text, naturalLevel), toneSelect.value);
+      const voiceBase = activeStrength === "light" ? natural : structuralRewrite(text);
+      const voice = applyStyleSample(tuneByTone(voiceBase, toneSelect.value), styleSample.value);
+      outputs = { safe, natural, voice };
+    }
+
+    async function requestModelAnalysis(text, localSignals) {
+      if (location.protocol === "file:") {
+        throw new Error("请通过 start-windows.bat 启动后端，直接打开 HTML 只能使用本地规则版。");
+      }
+      const config = requireModelConfig();
+      if (!hasBackendApi()) {
+        return requestBrowserAnalyze(text, localSignals, config);
+      }
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90000);
+      let response;
+      try {
+        response = await fetch("/api/analyze", {
+          method: "POST",
+          signal: controller.signal,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            scene: sceneSelect.value,
+            sceneLabel: sceneSelect.options[sceneSelect.selectedIndex].text,
+            strength: activeStrength,
+            tone: toneSelect.value,
+            fidelity: Number(fidelityRange.value),
+            styleSample: styleSample.value,
+            localSignals: localSignals.slice(0, 20),
+            config
+          })
+        });
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error("模型请求超时：90 秒内没有返回。请先点“测试 API”检查接口。");
+        }
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = payload && payload.error ? payload.error : "模型接口请求失败";
+        throw new Error(message);
+      }
+      return payload;
+    }
+
+    async function requestSentenceIssues(text) {
+      if (location.protocol === "file:") {
+        throw new Error("请通过 start-windows.bat 启动后端。");
+      }
+      const config = requireModelConfig();
+      if (!hasBackendApi()) {
+        return requestBrowserSentenceIssues(text, config);
+      }
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 55000);
+      try {
+        const response = await fetch("/api/sentence-issues", {
+          method: "POST",
+          signal: controller.signal,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            scene: sceneSelect.value,
+            sceneLabel: sceneSelect.options[sceneSelect.selectedIndex].text,
+            config
+          })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "语句分析请求失败");
+        }
+        return payload;
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error("语句分析超时：55 秒内没有返回。");
+        }
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function startProgress(target = 82) {
+      clearInterval(progressTimer);
+      progressBar.classList.add("running");
+      progressBar.style.width = "8%";
+      let value = 8;
+      progressTimer = setInterval(() => {
+        value = Math.min(target, value + Math.max(1, Math.round((target - value) * 0.12)));
+        progressBar.style.width = `${value}%`;
+      }, 450);
+    }
+
+    function finishProgress(ok = true) {
+      clearInterval(progressTimer);
+      progressBar.classList.remove("running");
+      progressBar.style.width = ok ? "100%" : "0%";
+      setTimeout(() => {
+        progressBar.style.width = "0%";
+      }, ok ? 900 : 200);
+    }
+
+    async function testApiConnection() {
+      if (location.protocol === "file:") {
+        apiStatus.textContent = "请先启动后端";
+        return;
+      }
+      let config;
+      try {
+        config = requireModelConfig();
+      } catch (error) {
+        apiStatus.textContent = error.message;
+        return;
+      }
+      apiStatus.textContent = "测试中...";
+      startProgress(58);
+      try {
+        if (!hasBackendApi()) {
+          const messages = [
+            { role: "system", content: "Return JSON only." },
+            { role: "user", content: "{\"ok\":true}" }
+          ];
+          await callBrowserModel(config, messages, { temperature: 0, maxTokens: 256 });
+          apiStatus.textContent = `可用 · ${config.model}`;
+          finishProgress(true);
+          return;
+        }
+        const response = await fetch("/api/health", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ config })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          apiStatus.textContent = `失败 · ${payload.error || "未知错误"}`;
+          finishProgress(false);
+          return;
+        }
+        apiStatus.textContent = `可用 · ${payload.model}`;
+        finishProgress(true);
+      } catch (error) {
+        apiStatus.textContent = `失败 · ${error.message}`;
+        finishProgress(false);
+      }
+    }
+
+    function applyModelResult(result) {
+      if (!result || typeof result !== "object") return;
+
+      if (result.outputs) {
+        outputs = {
+          safe: result.outputs.safe || outputs.safe,
+          natural: result.outputs.natural || outputs.natural,
+          voice: result.outputs.voice || outputs.voice
+        };
+        renderOutput();
+        renderCompare();
+      }
+
+      if (Array.isArray(result.signals) && result.signals.length) {
+        const normalized = result.signals.map((hit, index) => ({
+          id: hit.id || `model-${index}`,
+          name: hit.name || hit.type || "模型诊断",
+          family: hit.family || "model",
+          severity: hit.severity || "mid",
+          value: hit.value || hit.trigger || "",
+          index: Number.isFinite(hit.index) ? hit.index : index
+        }));
+        renderSignals(normalized);
+        renderSummary(normalized);
+      }
+
+      rewriteStatus.textContent = "模型分析完成 · 已生成真实改写";
+    }
+
+    function normalizeDiffPart(part) {
+      return part.replace(/\s+/g, "").replace(/[，。！？、；：,.!?;:]/g, "").trim();
+    }
+
+    function splitDiffParts(text) {
+      const parts = text.match(/\s+|[^。！？!?；;\n]+[。！？!?；;]?|\n+/g) || [text];
+      return parts.filter((part) => part.length);
+    }
+
+    function buildDiffHtml(text, compareText, className) {
+      if (!text.trim()) return `<span class="diff-empty">暂无内容</span>`;
+      const compareParts = new Set(
+        splitDiffParts(compareText)
+          .map(normalizeDiffPart)
+          .filter((part) => part.length > 1)
+      );
+      return splitDiffParts(text).map((part) => {
+        if (/^\s+$/.test(part)) return escapeHtml(part);
+        const normalized = normalizeDiffPart(part);
+        const changed = normalized.length > 1 && !compareParts.has(normalized);
+        return changed
+          ? `<span class="${className}">${escapeHtml(part)}</span>`
+          : escapeHtml(part);
+      }).join("");
+    }
+
+    function renderCompare() {
+      const original = sourceText.value.trim();
+      const rewritten = outputs[activeTab] || "";
+      if (!original || !rewritten) {
+        compareBox.innerHTML = `<span class="empty">完成后显示修改前后对照。</span>`;
+        return;
+      }
+      const activeTabButton = document.querySelector(`#outputTabs .tab[data-tab="${activeTab}"]`);
+      const activeTabLabel = activeTabButton ? activeTabButton.textContent : activeTab;
+      compareBox.innerHTML = `
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-label">修改前</div>
+            <div class="compare-text">${buildDiffHtml(original, rewritten, "diff-changed")}</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-label">修改后 · ${escapeHtml(activeTabLabel)}</div>
+            <div class="compare-text">${buildDiffHtml(rewritten, original, "diff-added")}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function highlight(text, hits) {
+      if (!text.trim()) return "<span class=\"empty\">原文高亮会显示在这里。</span>";
+      const ranges = hits
+        .filter((hit) => hit.value)
+        .map((hit) => ({ start: hit.index, end: hit.index + hit.value.length }))
+        .sort((a, b) => a.start - b.start);
+      const merged = [];
+      ranges.forEach((range) => {
+        const last = merged[merged.length - 1];
+        if (!last || range.start > last.end) merged.push({ ...range });
+        else last.end = Math.max(last.end, range.end);
+      });
+      let html = "";
+      let cursor = 0;
+      merged.forEach((range) => {
+        html += escapeHtml(text.slice(cursor, range.start));
+        html += `<mark>${escapeHtml(text.slice(range.start, range.end))}</mark>`;
+        cursor = range.end;
+      });
+      html += escapeHtml(text.slice(cursor));
+      return html;
+    }
+
+    function compareSet(originalItems, rewrittenItems) {
+      const missing = originalItems.filter((item) => !rewrittenItems.includes(item));
+      return {
+        total: originalItems.length,
+        missing: missing.length,
+        ok: missing.length === 0
+      };
+    }
+
+    function renderSignals(hits) {
+      const top = hits.slice(0, 16);
+      signalsEl.innerHTML = top.length ? top.map((hit, index) => `
+        <div class="signal severity-${hit.severity}">
+          <span class="signal-index">${String(index + 1).padStart(2, "0")}</span>
+          <span class="signal-name">${escapeHtml(hit.name)} · ${escapeHtml(hit.value)}</span>
+          <span class="signal-hit">${hit.severity}</span>
+        </div>
+      `).join("") : `<div class="signal"><span class="signal-index">00</span><span class="signal-name empty">没有明显命中</span><span class="signal-hit">ok</span></div>`;
+    }
+
+    function renderSummary(hits) {
+      if (!hits.length) {
+        summaryPills.innerHTML = `<span class="pill">文本较干净</span>`;
+        return;
+      }
+      const groups = hits.reduce((acc, hit) => {
+        acc[hit.name] = (acc[hit.name] || 0) + 1;
+        return acc;
+      }, {});
+      summaryPills.innerHTML = Object.entries(groups)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, count]) => `<span class="pill warn">${escapeHtml(name)} ${count}</span>`)
+        .join("");
+    }
+
+    function renderMetrics(text, hits) {
+      inputCount.textContent = `${text.length} 字`;
+      signalCount.textContent = hits.length;
+      const protectedItems = extractProtected(text);
+      protectedCount.textContent = protectedItems.number.length + protectedItems.names.length + protectedItems.dates.length;
+      const high = hits.filter((hit) => hit.severity === "high").length;
+      riskLevel.textContent = hits.length === 0 ? "低" : high >= 3 ? "高" : hits.length >= 6 ? "中" : "低";
+    }
+
+    function renderOutput() {
+      const current = outputs[activeTab] || "";
+      outputBox.textContent = current || "运行后显示改写结果。";
+      renderCompare();
+    }
+
+    async function run() {
+      const currentRun = ++runCounter;
+      const text = sourceText.value.trim();
+      lastSignals = analyze(text);
+      renderMetrics(text, lastSignals);
+      renderSignals(lastSignals);
+      renderSummary(lastSignals);
+      if (!text) {
+        outputs = { safe: "", natural: "", voice: "" };
+        renderOutput();
+        compareBox.innerHTML = `<span class="empty">完成后显示修改前后对照。</span>`;
+        rewriteStatus.textContent = "等待文本";
+        return;
+      }
+      outputs = { safe: "", natural: "", voice: "" };
+      renderOutput();
+      outputBox.innerHTML = `<span class="empty">正在分析和改写，完成后才会显示结果。</span>`;
+      compareBox.innerHTML = `<span class="empty">完成后显示修改前后对照。</span>`;
+      rewriteStatus.textContent = `${sceneSelect.options[sceneSelect.selectedIndex].text} · ${modeLabel.textContent} · 正在请求模型...`;
+      startProgress(86);
+      try {
+        const result = await requestModelAnalysis(text, lastSignals);
+        if (currentRun !== runCounter) return;
+        applyModelResult(result);
+        finishProgress(true);
+      } catch (error) {
+        if (currentRun !== runCounter) return;
+        outputs = { safe: "", natural: "", voice: "" };
+        renderOutput();
+        outputBox.innerHTML = `<span class="empty">未返回改写结果。请检查 API 配置或点击“测试 API”。</span>`;
+        compareBox.innerHTML = `<span class="empty">未返回结果，暂无修改前后对照。</span>`;
+        rewriteStatus.textContent = `处理失败 · ${error.message}`;
+        finishProgress(false);
+      }
+    }
+
+    async function checkSentencesNow() {
+      const text = sourceText.value.trim();
+      const issueKey = `${sceneSelect.value}::${text}`;
+      if (modelSentenceIssues && modelSentenceIssueKey === issueKey) {
+        renderModelSentenceIssues(modelSentenceIssues);
+        return;
+      }
+      if (!text) {
+        sentenceIssuesBox.innerHTML = `<span class="empty">请先输入文本。</span>`;
+        sentenceStatus.textContent = "等待文本";
+        return;
+      }
+      sentenceIssuesBox.innerHTML = `<span class="empty">正在单独分析语句问题。</span>`;
+      sentenceStatus.textContent = "正在分析";
+      startProgress(72);
+      try {
+        const result = await requestSentenceIssues(text);
+        modelSentenceIssues = Array.isArray(result.sentenceIssues) ? result.sentenceIssues : [];
+        modelSentenceIssueKey = issueKey;
+        renderModelSentenceIssues(modelSentenceIssues);
+        if (Array.isArray(result.signals) && result.signals.length) {
+          renderSignals(result.signals.map((hit, index) => ({
+            id: hit.id || `sentence-${index}`,
+            name: hit.name || hit.type || "语句诊断",
+            family: hit.family || "model",
+            severity: hit.severity || "mid",
+            value: hit.value || hit.trigger || "",
+            index
+          })));
+        }
+        finishProgress(true);
+      } catch (error) {
+        modelSentenceIssueKey = "";
+        sentenceIssuesBox.innerHTML = `<span class="empty">语句分析失败：${escapeHtml(error.message)}</span>`;
+        sentenceStatus.textContent = "分析失败";
+        finishProgress(false);
+      }
+    }
+
+    document.querySelector("#runBtn").addEventListener("click", run);
+    document.querySelector("#apiTestBtn").addEventListener("click", testApiConnection);
+    document.querySelector("#settingsBtn").addEventListener("click", openSettings);
+    document.querySelector("#settingsCloseBtn").addEventListener("click", closeSettings);
+    providerInput.addEventListener("change", applyProviderPreset);
+    document.querySelector("#settingsSaveBtn").addEventListener("click", () => {
+      const config = getModelConfigFromForm();
+      saveModelConfig(config);
+      settingsStatus.textContent = `已保存 · ${config.model}`;
+      apiStatus.textContent = config.apiKey ? `已配置 · ${config.model}` : "未配置";
+      closeSettings();
+    });
+    document.querySelector("#settingsClearBtn").addEventListener("click", () => {
+      localStorage.removeItem(configStorageKey);
+      fillSettingsForm();
+      updateApiStatusFromConfig();
+      settingsStatus.textContent = "已清除";
+    });
+    settingsModal.addEventListener("click", (event) => {
+      if (event.target === settingsModal) closeSettings();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && settingsModal.classList.contains("open")) closeSettings();
+    });
+    document.querySelector("#sentenceCheckTop").addEventListener("click", checkSentencesNow);
+    document.querySelector("#sampleBtn").addEventListener("click", () => {
+      sourceText.value = sample;
+      lastSignals = analyze(sourceText.value.trim());
+      renderMetrics(sourceText.value.trim(), lastSignals);
+      renderSignals(lastSignals);
+      renderSummary(lastSignals);
+      outputs = { safe: "", natural: "", voice: "" };
+      modelSentenceIssues = null;
+      renderOutput();
+      compareBox.innerHTML = `<span class="empty">完成后显示修改前后对照。</span>`;
+      sentenceIssuesBox.innerHTML = `<span class="empty">点击“分析语句”后，单独返回语句问题。</span>`;
+      sentenceStatus.textContent = "等待处理";
+      rewriteStatus.textContent = "样例已载入 · 点击运行去味后生成右侧结果";
+    });
+    document.querySelector("#clearBtn").addEventListener("click", () => {
+      sourceText.value = "";
+      styleSample.value = "";
+      outputs = { safe: "", natural: "", voice: "" };
+      modelSentenceIssues = null;
+      renderOutput();
+      compareBox.innerHTML = `<span class="empty">完成后显示修改前后对照。</span>`;
+      sentenceIssuesBox.innerHTML = `<span class="empty">点击“分析语句”后，单独返回语句问题。</span>`;
+      sentenceStatus.textContent = "等待处理";
+      updateLocalDiagnostics();
+    });
+
+    document.querySelector("#copyBtn").addEventListener("click", async () => {
+      const text = outputs[activeTab] || "";
+      if (!text) return;
+      await navigator.clipboard.writeText(text);
+      rewriteStatus.textContent = "已复制当前版本";
+    });
+
+    document.querySelector("#strengthTabs").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      activeStrength = button.dataset.strength;
+      document.querySelectorAll("#strengthTabs button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      modeLabel.textContent = button.textContent;
+      updateLocalDiagnostics();
+    });
+
+    document.querySelector("#outputTabs").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      activeTab = button.dataset.tab;
+      document.querySelectorAll("#outputTabs .tab").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      renderOutput();
+      renderCompare();
+    });
+
+    fidelityRange.addEventListener("input", () => {
+      fidelityValue.textContent = ["", "严格", "平衡", "灵活"][Number(fidelityRange.value)];
+    });
+
+    function updateLocalDiagnostics() {
+      const text = sourceText.value.trim();
+      lastSignals = analyze(text);
+      renderMetrics(text, lastSignals);
+      renderSignals(lastSignals);
+      renderSummary(lastSignals);
+      if (!outputs[activeTab]) {
+        rewriteStatus.textContent = text ? "等待运行 · 右侧结果由模型生成" : "等待文本";
+      }
+    }
+
+    [sourceText, sceneSelect, toneSelect, styleSample].forEach((element) => {
+      element.addEventListener("input", updateLocalDiagnostics);
+      element.addEventListener("change", updateLocalDiagnostics);
+    });
+    document.querySelectorAll(".check input").forEach((item) => item.addEventListener("change", updateLocalDiagnostics));
+
+    sourceText.value = sample;
+    updateApiStatusFromConfig();
+    updateLocalDiagnostics();
+  </script>
+</body>
+</html>
