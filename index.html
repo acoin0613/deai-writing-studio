@@ -2091,9 +2091,6 @@
       updateApiStatusFromConfig();
       settingsStatus.textContent = "已清除";
     });
-    settingsModal.addEventListener("click", (event) => {
-      if (event.target === settingsModal) closeSettings();
-    });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && settingsModal.classList.contains("open")) closeSettings();
     });
